@@ -29,6 +29,14 @@ public interface JasonScript {
 	public List<Literal> getPercepts(int time);
 	
 	/**
+	 * Tells wether or not the current perceptions should be wiped at the specified
+	 * point in time.
+	 * @param time
+	 * @return
+	 */
+	public boolean isWipeEvent(int time);
+	
+	/**
 	 * Adds a list of events to be posted at the specified point in time.
 	 * @param time The point in time for which the events are to be added.
 	 * @param events A list of <code>jason.asSyntax.Rule</code>.
@@ -41,4 +49,11 @@ public interface JasonScript {
 	 * @param rule An instance of <code>jason.asSyntax.Rule</code>
 	 */
 	public void addEvent(int time, Rule rule);
+	
+	/**
+	 * Adds a <em>wipe</em> event, cleaning up any perceptions in a given time.
+	 * @param time The time at which a wipe may occur.
+	 * @param wipe Wheter or not to wipe the current perceptions.
+	 */
+	public void addWipeEvent(int time, boolean wipe);
 }

@@ -5,13 +5,16 @@ import jason.asSyntax.Rule;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 
 public class JasonScriptImpl implements JasonScript {
 	protected HashMap<Integer, List<Literal>> eventsMap;
+	protected Hashtable<Integer, Boolean> wipeEvents;
 	
 	public JasonScriptImpl() {
 		this.eventsMap = new HashMap<Integer, List<Literal>>();
+		this.wipeEvents = new Hashtable<Integer, Boolean>();
 	}
 
 	public void addEvent(int time, Rule rule) {
@@ -46,6 +49,18 @@ public class JasonScriptImpl implements JasonScript {
 			return list;
 		}
 		return null;
+	}
+
+	public void addWipeEvent(int time, boolean wipe) {
+		this.wipeEvents.put(time, wipe);
+	}
+
+	public boolean isWipeEvent(int time) {
+		if(this.wipeEvents.containsKey(time)) {
+			return this.wipeEvents.get(time);
+		} else {
+			return false;
+		}
 	}
 
 }
