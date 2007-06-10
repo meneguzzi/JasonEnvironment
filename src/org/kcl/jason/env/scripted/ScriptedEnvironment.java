@@ -147,6 +147,11 @@ public class ScriptedEnvironment extends Environment implements Runnable {
 		while (running) {
 			try {
 				wait(cycleSize);
+				if(script.isWipeEvent(currentCycle)) {
+					logger.info("Clearing Percepts");
+					this.clearPercepts();
+				}
+					
 				if(script.getEvents(currentCycle) != null) {
 					this.addPercepts(script.getPercepts(currentCycle));
 				}

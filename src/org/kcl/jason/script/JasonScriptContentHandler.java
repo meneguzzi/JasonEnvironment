@@ -26,6 +26,7 @@ public class JasonScriptContentHandler extends DefaultHandler {
 	public static final String STEP="step";
 	
 	public static final String ATTR_TIME="time";
+	public static final String ATTR_WIPE="wipe";
 	
 	protected JasonScript jasonScript;
 	protected List<Literal> currentEventList;
@@ -63,6 +64,10 @@ public class JasonScriptContentHandler extends DefaultHandler {
 				currentTime = Integer.parseInt(attributes.getValue(ATTR_TIME));
 			} catch (Exception e) {
 				throw new SAXException("Invalid "+ATTR_TIME+" attribute", e);
+			}
+			if(attributes.getValue(ATTR_WIPE) != null) {
+				boolean wipe = Boolean.parseBoolean(attributes.getValue(ATTR_WIPE));
+				jasonScript.addWipeEvent(currentTime, wipe);
 			}
 			currentEventList = new ArrayList<Literal>();
 		}
