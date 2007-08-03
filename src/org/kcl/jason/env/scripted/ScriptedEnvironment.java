@@ -144,6 +144,7 @@ public class ScriptedEnvironment extends Environment implements Runnable {
 	 * @see java.lang.Runnable#run()
 	 */
 	public synchronized void run() {
+		Literal time = Literal.parseLiteral("time(0)");
 		while (running) {
 			try {
 				wait(cycleSize);
@@ -155,6 +156,11 @@ public class ScriptedEnvironment extends Environment implements Runnable {
 				if(script.getEvents(currentCycle) != null) {
 					this.addPercepts(script.getPercepts(currentCycle));
 				}
+				
+				this.removePercept(time);
+				time = Literal.parseLiteral("time("+currentCycle+")");
+				this.addPercept(time);
+				
 				currentCycle++;
 			} catch (InterruptedException e) {
 				e.printStackTrace();

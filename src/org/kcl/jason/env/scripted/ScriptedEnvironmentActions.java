@@ -96,8 +96,17 @@ public class ScriptedEnvironmentActions extends
 		if(file.isDirectory()) {
 			String files[] = file.list();
 			for (int i = 0; i < files.length; i++) {
-				if(files[i].endsWith(".class")) {
-					
+				if(files[i].endsWith(".class") || files[i].endsWith(".java")) {
+					String className = files[i];
+					className = className.substring(0,className.lastIndexOf('.'));
+					String pkg = path.replace('/', '.');
+					className = pkg+"."+className;
+					try {
+						this.addExternalAction(className);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 			}
 		} else {
