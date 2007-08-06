@@ -7,10 +7,12 @@ import jason.asSemantics.Unifier;
 import jason.asSyntax.Literal;
 import jason.asSyntax.Structure;
 import jason.environment.Environment;
+import jason.runtime.MASConsoleGUI;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -43,11 +45,17 @@ public class ScriptedEnvironment extends Environment implements Runnable {
 	
 	protected EnvironmentActions actions;
 	
+	/**
+	 * A list of percepts that may be seen from external actions
+	 */
+	protected List<Literal> accessiblePercepts;
+	
 	public ScriptedEnvironment() {
 		this.running = false;
 		this.environmentThread = new Thread(this, "MotivationTestEnvironment");
 		this.cycleSize = 1000;
 		this.currentCycle = 0;
+		this.accessiblePercepts = Collections.synchronizedList(new ArrayList<Literal>());
 		//this.actions = new ScriptedEnvironmentActions(this);
 	}
 	@Override
@@ -99,6 +107,65 @@ public class ScriptedEnvironment extends Environment implements Runnable {
 		}
 	}
 	
+	/* Since we cannot access the percepts in the regular Jason environment, 
+	 * we create a parallel list to maintain them accessible.
+	 * */
+	@Override
+	public void addPercept(Literal per) {
+		if (per != null) {
+			if(!this.accessiblePercepts.contains(per)) {
+				this.accessiblePercepts.add(per);
+			}
+			super.addPercept(per);
+		}
+	}
+	
+	@Override
+	public boolean removePercept(Literal per) {
+		if(per != null) {
+			this.accessiblePercepts.remove(per);
+			return super.removePercept(per);
+		} else {
+			return false;
+		}
+	}
+	
+	@Override
+	public void clearPercepts() {
+		if(!accessiblePercepts.isEmpty()) {
+			accessiblePercepts.clear();
+		}
+		super.clearPercepts();
+	}
+	
+	/**
+	 * Finds the percepts matching the supplied query.
+	 * @param queryLiteral
+	 * @return
+	 */
+	public List<Literal> findPercepts(Literal queryLiteral) {
+		List<Literal> matchingPercepts = new ArrayList<Literal>();
+		
+		for(Literal percept : accessiblePercepts) {
+			//if the query matches the percept perfectly
+			//there is no need to search further
+			if(queryLiteral.equals(percept)) {
+				matchingPercepts.add(percept);
+				return matchingPercepts;
+			} else {
+				Unifier unifier = new Unifier();
+				if(unifier.unifies(queryLiteral, percept)) {
+					matchingPercepts.add(percept);
+				}
+			}
+			
+		}
+		
+		return matchingPercepts;
+	}
+	
+	/* ************************************************************* */
+	
 	@Override
 	public boolean executeAction(String agName, Structure act) {
 		//return super.executeAction(agName, act);
@@ -148,6 +215,15 @@ public class ScriptedEnvironment extends Environment implements Runnable {
 		while (running) {
 			try {
 				wait(cycleSize);
+				//If we have the console GUI
+				//Then this could have been paused
+				if( MASConsoleGUI.hasConsole()) {
+					//In which case, we simply jump
+					//cycles till it is no longer paused
+					if(MASConsoleGUI.get().isPause()) {
+						continue;
+					}
+				}
 				if(script.isWipeEvent(currentCycle)) {
 					logger.info("Clearing Percepts");
 					this.clearPercepts();
