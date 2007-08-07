@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ====================================================================== 
+     7 Aug 2007 16:37:33                                                        
+
+     JasonEnvironment    
+     Utility classes for a flexible Jason test Environment
+                   
+     meneguzz                                                                
+     ====================================================================== -->
+<project name="JasonEnvironment" default="all">
+    <description>
+            Utility classes for a flexible Jason test Environment
+    </description>
+	
+	<property name="build.dir" value="${basedir}/bin/classes" />
+	<property name="jason.jar" value="${basedir}/lib/jason.jar"/>
+	<property name="jasonenv.jar" value="${basedir}/jasonenv.jar"/>
+
+
+	<path id="run.classpath">
+		<pathelement location="${jason.jar}" />
+		<pathelement location="${build.dir}" />
+	</path>
+	
+	<path id="project.classpath">
+		<path refid="run.classpath" />
+	</path>
+
+    <!-- ================================= 
+          target: all              
+         ================================= -->
+    <target name="all" depends="compile,jar" description="--> Utility classes for a flexible Jason test Environment">
+        
+    </target>
+	
+	<!-- ================================= 
+          target: jar              
+         ================================= -->
+    <target name="jar" depends="compile" description="--> Creates a jar file">
+        <jar destfile="${jasonenv.jar}" basedir="${build.dir}"></jar>
+    </target>
+
+	
+	<!-- =================================
+		  target: compile
+	     ================================= -->
+	<target name="compile" depends="init">
+		<javac srcdir="src" destdir="${build.dir}" debug="true" deprecation="true" optimize="true" nowarn="true" source="1.5" target="1.5">
+			<classpath refid="project.classpath" />
+		</javac>
+	</target>
+	
+	<!-- ================================= 
+          target: clean              
+         ================================= -->
+    <target name="clean" depends="init" description="--> Cleans up build resources">
+        <delete dir="${build.dir}"/>
+    	<delete file="${jasonenv.jar}"/>
+    </target>
+
+
+    <!-- - - - - - - - - - - - - - - - - - 
+          target: init                      
+         - - - - - - - - - - - - - - - - - -->
+    <target name="init">
+    	<mkdir dir="${build.dir}"/>
+    </target>
+
+</project>
