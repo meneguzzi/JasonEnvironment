@@ -36,7 +36,7 @@ public class ModularEnvironment<E extends Environment> implements EnvironmentAct
 		if(classType.isAssignableFrom(c)) {
 			newObject = (K) c.newInstance();
 		} else {
-			throw new InstantiationException();
+			throw new InstantiationException(classType.getCanonicalName());
 		}
 		return newObject;
 	}
