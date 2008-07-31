@@ -23,6 +23,7 @@ import javax.xml.parsers.SAXParserFactory;
 import org.kcl.jason.env.EnvironmentActions;
 import org.kcl.jason.script.JasonScript;
 import org.kcl.jason.script.JasonScriptContentHandler;
+import org.kcl.jason.script.JasonScriptImpl;
 import org.xml.sax.SAXException;
 
 
@@ -37,13 +38,17 @@ public class ScriptedEnvironment extends Environment implements Runnable {
 	
 	protected boolean running;
 	
+	protected boolean paused;
+	
 	protected Thread environmentThread;
 	
 	protected int cycleSize;
 	
-	protected int currentCycle;
+	protected long currentCycle;
 	
 	protected EnvironmentActions actions;
+	
+	protected List<ScriptedEnvironmentListener> listeners;
 	
 	/**
 	 * A list of percepts that may be seen from external actions
@@ -56,12 +61,14 @@ public class ScriptedEnvironment extends Environment implements Runnable {
 		this.cycleSize = 1000;
 		this.currentCycle = 0;
 		this.accessiblePercepts = Collections.synchronizedList(new ArrayList<Literal>());
+		this.listeners = new ArrayList<ScriptedEnvironmentListener>();
 		//this.actions = new ScriptedEnvironmentActions(this);
 	}
 	@Override
 	public void init(String[] args) {
 		super.init(args);
 		clearPercepts();
+		this.resume();
 		try {
 			SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
 			JasonScriptContentHandler contentHandler = new JasonScriptContentHandler();
@@ -72,8 +79,8 @@ public class ScriptedEnvironment extends Environment implements Runnable {
 					logger.info("Reading script file: "+args[0]);
 					parser.parse(scriptFile, contentHandler);
 					this.script = contentHandler.getJasonScript();
-					this.running = true;
-					environmentThread.start();
+				} else {
+					this.script = new JasonScriptImpl();
 				}
 				//Then instantiate the proper external actions
 				if(args.length > 1) {
@@ -81,8 +88,11 @@ public class ScriptedEnvironment extends Environment implements Runnable {
 				} else {
 					this.actions = new ScriptedEnvironmentActions(this, ScriptedEnvironment.class.getPackage().getName());
 				}
+			} else {
+				this.script = new JasonScriptImpl();
 			}
-			
+			this.running = true;
+			environmentThread.start();
 		} catch (ParserConfigurationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -98,6 +108,46 @@ public class ScriptedEnvironment extends Environment implements Runnable {
 	@Override
 	public void stop() {
 		this.running = false;
+	}
+	
+	/**
+	 * Adds a new scripted environment listener
+	 * @param listener
+	 */
+	public void addScriptedEnvironmentListener(ScriptedEnvironmentListener listener) {
+		this.listeners.add(listener);
+	}
+	
+	/**
+	 * Notifies all listeners that time has changed.
+	 * @param newTime
+	 */
+	private void timeChangedEvent(long newTime) {
+		for (ScriptedEnvironmentListener listener : listeners) {
+			listener.timeChanged(newTime);
+		}
+	}
+	
+	/**
+	 * Return whether or not the environment thread is paused.
+	 * @return
+	 */
+	public boolean isPaused() {
+		return paused;
+	}
+	
+	/**
+	 * Pauses the environment thread
+	 */
+	public void pause() {
+		paused = true;
+	}
+	
+	/**
+	 * Resumes the environment thread after being paused
+	 */
+	public void resume() {
+		paused = false;
 	}
 	
 	public void addPercepts(List<Literal> list) {
@@ -164,6 +214,14 @@ public class ScriptedEnvironment extends Environment implements Runnable {
 		return matchingPercepts;
 	}
 	
+	/**
+	 * Returns the current time in the simulated environment
+	 * @return
+	 */
+	public synchronized long getCurrentCycle() {
+		return currentCycle;
+	}
+	
 	/* ************************************************************* */
 	
 	@Override
@@ -196,6 +254,8 @@ public class ScriptedEnvironment extends Environment implements Runnable {
 		return null;
 	}
 	
+	
+	
 	public List<Literal> findLiteralsByFunctor(String key, List<Literal> literals) {
 		List <Literal> ret = new ArrayList<Literal>();
 		for (Literal literal : literals) {
@@ -220,24 +280,27 @@ public class ScriptedEnvironment extends Environment implements Runnable {
 				if( MASConsoleGUI.hasConsole()) {
 					//In which case, we simply jump
 					//cycles till it is no longer paused
-					if(MASConsoleGUI.get().isPause()) {
+					if(MASConsoleGUI.get().isPause() || paused) {
 						continue;
+					} else {
+						if(script.isWipeEvent(currentCycle)) {
+							logger.info("Clearing Percepts");
+							this.clearPercepts();
+						}
+							
+						if(script.getEvents(currentCycle) != null) {
+							this.addPercepts(script.getPercepts(currentCycle));
+						}
+						
+						this.removePercept(time);
+						time = Literal.parseLiteral("time("+currentCycle+")");
+						this.addPercept(time);
+						
+						currentCycle++;
+						//then notify all listeners
+						this.timeChangedEvent(currentCycle);
 					}
 				}
-				if(script.isWipeEvent(currentCycle)) {
-					logger.info("Clearing Percepts");
-					this.clearPercepts();
-				}
-					
-				if(script.getEvents(currentCycle) != null) {
-					this.addPercepts(script.getPercepts(currentCycle));
-				}
-				
-				this.removePercept(time);
-				time = Literal.parseLiteral("time("+currentCycle+")");
-				this.addPercept(time);
-				
-				currentCycle++;
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

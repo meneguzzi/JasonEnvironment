@@ -36,14 +36,14 @@ public class JasonScriptImpl implements JasonScript {
 		}
 	}
 
-	public List<Literal> getEvents(int time) {
+	public List<Literal> getEvents(long time) {
 		if (eventsMap.containsKey(time) && eventsMap.get(time) != null) {
 			return eventsMap.get(time);
 		}
 		return null;
 	}
 
-	public List<Literal> getPercepts(int time) {
+	public List<Literal> getPercepts(long time) {
 		if (eventsMap.containsKey(time) && eventsMap.get(time) != null) {
 			List<Literal> list = new ArrayList<Literal>(eventsMap.get(time));
 			return list;
@@ -55,7 +55,7 @@ public class JasonScriptImpl implements JasonScript {
 		this.wipeEvents.put(time, wipe);
 	}
 
-	public boolean isWipeEvent(int time) {
+	public boolean isWipeEvent(long time) {
 		if(this.wipeEvents.containsKey(time)) {
 			return this.wipeEvents.get(time);
 		} else {

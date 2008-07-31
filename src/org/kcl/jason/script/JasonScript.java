@@ -19,14 +19,14 @@ public interface JasonScript {
 	 * @param time The point in time for which the events are to be returned.
 	 * @return A list of <code>jason.asSyntax.Rule</code>.
 	 */
-	public List<Literal> getEvents(int time);
+	public List<Literal> getEvents(long time);
 	
 	/**
 	 * Conveniency method to allow the list of events to be expressed as literals
 	 * @param time The point in time for which the events are to be returned.
 	 * @return A list of <code>jason.asSyntax.Literal</code>.
 	 */
-	public List<Literal> getPercepts(int time);
+	public List<Literal> getPercepts(long time);
 	
 	/**
 	 * Tells wether or not the current perceptions should be wiped at the specified
@@ -34,7 +34,7 @@ public interface JasonScript {
 	 * @param time
 	 * @return
 	 */
-	public boolean isWipeEvent(int time);
+	public boolean isWipeEvent(long time);
 	
 	/**
 	 * Adds a list of events to be posted at the specified point in time.
