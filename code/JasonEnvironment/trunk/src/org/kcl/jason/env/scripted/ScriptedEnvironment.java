@@ -57,7 +57,7 @@ public class ScriptedEnvironment extends Environment implements Runnable {
 	
 	public ScriptedEnvironment() {
 		this.running = false;
-		this.environmentThread = new Thread(this, "MotivationTestEnvironment");
+		this.environmentThread = new Thread(this, "ScriptedEnvironment");
 		this.cycleSize = 1000;
 		this.currentCycle = 0;
 		this.accessiblePercepts = Collections.synchronizedList(new ArrayList<Literal>());

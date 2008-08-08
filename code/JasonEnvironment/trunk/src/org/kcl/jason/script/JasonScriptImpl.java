@@ -9,15 +9,15 @@ import java.util.Hashtable;
 import java.util.List;
 
 public class JasonScriptImpl implements JasonScript {
-	protected HashMap<Integer, List<Literal>> eventsMap;
-	protected Hashtable<Integer, Boolean> wipeEvents;
+	protected HashMap<Long, List<Literal>> eventsMap;
+	protected Hashtable<Long, Boolean> wipeEvents;
 	
 	public JasonScriptImpl() {
-		this.eventsMap = new HashMap<Integer, List<Literal>>();
-		this.wipeEvents = new Hashtable<Integer, Boolean>();
+		this.eventsMap = new HashMap<Long, List<Literal>>();
+		this.wipeEvents = new Hashtable<Long, Boolean>();
 	}
 
-	public void addEvent(int time, Rule rule) {
+	public void addEvent(long time, Rule rule) {
 		List<Literal> list = null;
 		if (eventsMap.containsKey(time) && eventsMap.get(time) != null) {
 			list = eventsMap.get(time);
@@ -28,7 +28,7 @@ public class JasonScriptImpl implements JasonScript {
 		list.add(rule);
 	}
 
-	public void addEvents(int time, List<Literal> events) {
+	public void addEvents(long time, List<Literal> events) {
 		if (eventsMap.containsKey(time) && eventsMap.get(time) != null) {
 			eventsMap.get(time).addAll(events);
 		} else {
@@ -51,7 +51,7 @@ public class JasonScriptImpl implements JasonScript {
 		return null;
 	}
 
-	public void addWipeEvent(int time, boolean wipe) {
+	public void addWipeEvent(long time, boolean wipe) {
 		this.wipeEvents.put(time, wipe);
 	}
 
