@@ -41,19 +41,19 @@ public interface JasonScript {
 	 * @param time The point in time for which the events are to be added.
 	 * @param events A list of <code>jason.asSyntax.Rule</code>.
 	 */
-	public void addEvents(int time, List<Literal> events);
+	public void addEvents(long time, List<Literal> events);
 	
 	/**
 	 * Adds a single event to the specified point in time.
 	 * @param time The point in time for which the event is to be added.
 	 * @param rule An instance of <code>jason.asSyntax.Rule</code>
 	 */
-	public void addEvent(int time, Rule rule);
+	public void addEvent(long time, Rule rule);
 	
 	/**
 	 * Adds a <em>wipe</em> event, cleaning up any perceptions in a given time.
 	 * @param time The time at which a wipe may occur.
 	 * @param wipe Wheter or not to wipe the current perceptions.
 	 */
-	public void addWipeEvent(int time, boolean wipe);
+	public void addWipeEvent(long time, boolean wipe);
 }
