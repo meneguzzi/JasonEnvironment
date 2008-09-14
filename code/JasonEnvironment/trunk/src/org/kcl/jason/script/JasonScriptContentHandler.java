@@ -3,12 +3,16 @@
  */
 package org.kcl.jason.script;
 
+import jason.JasonException;
+import jason.asSemantics.Agent;
 import jason.asSyntax.Literal;
 import jason.asSyntax.parser.ParseException;
 import jason.asSyntax.parser.as2j;
 
+import java.io.BufferedReader;
 import java.io.CharArrayReader;
 import java.io.CharArrayWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,13 +90,21 @@ public class JasonScriptContentHandler extends DefaultHandler {
 			throws SAXException {
 		if (qName.equals(STEP)) {
 			if(charArrayWriter != null && charArrayWriter.size() > 0) {
-//				System.out.println("Processing events at time "+currentTime);
+                //System.out.println("Processing events at time "+currentTime);
 				charArrayReader = new CharArrayReader(charArrayWriter.toCharArray());
 				jasonParser.ReInit(charArrayReader);
+				//We have to create an agent to parse a set of beliefs
+				//since the parser no longer has beliefs_list
+				Agent agent = new Agent();
 				try {
-					jasonParser.belief_base(currentEventList);
+					jasonParser.agent(agent);
+					currentEventList.addAll(agent.getInitialBels());
 				} catch (ParseException e) {
-					throw new SAXException("Invalid events at time "+currentTime, e);
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (JasonException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 				this.jasonScript.addEvents(currentTime, currentEventList);
 				charArrayWriter.reset();
