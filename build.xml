@@ -14,7 +14,7 @@
 	
 	<property name="build.dir" value="${basedir}/bin/classes" />
 	<property name="jason.jar" value="${basedir}/lib/jason.jar"/>
-	<property name="jasonenv.jar" value="${basedir}/jasonenv.jar"/>
+	<property name="jasonenv.jar" value="${basedir}/lib/jasonenv.jar"/>
 
 
 	<path id="run.classpath">
