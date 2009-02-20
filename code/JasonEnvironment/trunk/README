@@ -1,0 +1,20 @@
+This is a utility package including a implementations of various Jason 
+environments aimed at facilitating the modular development of an agent system.
+One of these environments is driven by a script to generate new perception 
+events at specific times during the execution of a Jason multiagent system. 
+Class ScriptedEnvironment takes as a parameter an XML file with nodes 
+containing a list of perceptual updates for all agents and the time at which 
+these updates must be sent to all agents in the environment. An example
+script is located at examples/script.xml. 
+
+Jason was created by Rafael H. Bordini, Jomi F. Hubner, et al.
+http://jason.sourceforge.net
+
+EmPlan was created by Felipe Meneguzzi
+http://www.meneguzzi.eu/felipe/software.html#xbdi
+
+First release: February 2009.
+Jason is distributed under LGPL (see file LICENSE).
+
+Java 1.5 is required to run this application, it is available
+at http://java.sun.com.

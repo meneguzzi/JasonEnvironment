@@ -1,0 +1,8 @@
+AgentSpeak Actions
+------------------
+* Proper documentation of the software is highly desirable.
+
+* Although the XML is dead simple, an XSD schema would be nice. 
+
+* JUnit tests are not complete, and should be completed for a thorough 
+  validation of the implementation.

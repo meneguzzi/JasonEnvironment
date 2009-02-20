@@ -8,39 +8,69 @@
      meneguzz                                                                
      ====================================================================== -->
 <project name="JasonEnvironment" default="all">
-    <description>
+	<description>
             Utility classes for a flexible Jason test Environment
     </description>
-	
+
 	<property name="build.dir" value="${basedir}/bin/classes" />
-	<property name="jason.jar" value="${basedir}/lib/jason.jar"/>
-	<property name="jasonenv.jar" value="${basedir}/lib/jasonenv.jar"/>
+	<property name="jason.jar" value="${basedir}/lib/jason.jar" />
+	<property name="jasonEnvJar" value="${basedir}/lib/jasonenv.jar" />
+
+	<property name="dist.properties" value="${basedir}/bin/dist.properties" />
+	<property name="version" value="1.0" />
+	<property name="release" value="1" />
 
 
 	<path id="run.classpath">
 		<pathelement location="${jason.jar}" />
 		<pathelement location="${build.dir}" />
 	</path>
-	
+
 	<path id="project.classpath">
 		<path refid="run.classpath" />
 	</path>
 
-    <!-- ================================= 
+	<!-- ================================= 
           target: all              
          ================================= -->
-    <target name="all" depends="compile,jar" description="--> Utility classes for a flexible Jason test Environment">
-        
-    </target>
-	
+	<target name="all" depends="compile,jar" description="--> Utility classes for a flexible Jason test Environment">
+
+	</target>
+
+	<!-- ================================= 
+          target: dist              
+         ================================= -->
+	<target name="dist" depends="jar" description="Creates a zip for distribution">
+		<zip destfile="${basedir}/jasonenv.zip">
+			<fileset dir="${basedir}">
+				<include name="**/*" />
+				<exclude name=".svn*" />
+				<exclude name="bin" />
+			</fileset>
+
+		</zip>
+	</target>
+
+
 	<!-- ================================= 
           target: jar              
          ================================= -->
-    <target name="jar" depends="compile" description="--> Creates a jar file">
-        <jar destfile="${jasonenv.jar}" basedir="${build.dir}"></jar>
-    </target>
+	<target name="jar" depends="compile" description="--> Creates a jar file">
+		<jar destfile="${jasonEnvJar}">
+			<propertyfile file="${dist.properties}">
+				<entry key="version" value="${version}" />
+				<entry key="release" value="${release}" />
+				<entry default="0" key="build" operation="+" type="int" />
+				<entry key="build.date" type="date" value="now" />
+			</propertyfile>
+			<property file="${dist.properties}" />
+			<fileset dir="${build.dir}">
+				<include name="**/*.class" />
+			</fileset>
+		</jar>
+	</target>
 
-	
+
 	<!-- =================================
 		  target: compile
 	     ================================= -->
@@ -49,21 +79,20 @@
 			<classpath refid="project.classpath" />
 		</javac>
 	</target>
-	
+
 	<!-- ================================= 
           target: clean              
          ================================= -->
-    <target name="clean" depends="init" description="--> Cleans up build resources">
-        <delete dir="${build.dir}"/>
-    	<delete file="${jasonenv.jar}"/>
-    </target>
+	<target name="clean" depends="init" description="--> Cleans up build resources">
+		<delete dir="${build.dir}" />
+	</target>
 
 
-    <!-- - - - - - - - - - - - - - - - - - 
+	<!-- - - - - - - - - - - - - - - - - - 
           target: init                      
          - - - - - - - - - - - - - - - - - -->
-    <target name="init">
-    	<mkdir dir="${build.dir}"/>
-    </target>
+	<target name="init">
+		<mkdir dir="${build.dir}" />
+	</target>
 
 </project>
