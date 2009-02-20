@@ -12,13 +12,15 @@
             Utility classes for a flexible Jason test Environment
     </description>
 
-	<property name="build.dir" value="${basedir}/bin/classes" />
+	<property name="build.dir" value="${basedir}/bin" />
 	<property name="jason.jar" value="${basedir}/lib/jason.jar" />
 	<property name="jasonEnvJar" value="${basedir}/lib/jasonenv.jar" />
 
-	<property name="dist.properties" value="${basedir}/bin/dist.properties" />
 	<property name="version" value="1.0" />
 	<property name="release" value="1" />
+
+	<property name="dist.properties" value="${basedir}/bin/dist.properties" />
+	<property name="dist.file" value="${basedir}/jasonenv-${version}.zip" />
 
 
 	<path id="run.classpath">
@@ -41,11 +43,11 @@
           target: dist              
          ================================= -->
 	<target name="dist" depends="jar" description="Creates a zip for distribution">
-		<zip destfile="${basedir}/jasonenv.zip">
+		<antcall target="clean"/>
+		<zip destfile="${dist.file}">
 			<fileset dir="${basedir}">
 				<include name="**/*" />
 				<exclude name=".svn*" />
-				<exclude name="bin" />
 			</fileset>
 
 		</zip>
@@ -56,14 +58,14 @@
           target: jar              
          ================================= -->
 	<target name="jar" depends="compile" description="--> Creates a jar file">
+		<propertyfile file="${dist.properties}">
+			<entry key="version" value="${version}" />
+			<entry key="release" value="${release}" />
+			<entry default="0" key="build" operation="+" type="int" />
+			<entry key="build.date" type="date" value="now" />
+		</propertyfile>
+		<property file="${dist.properties}" />
 		<jar destfile="${jasonEnvJar}">
-			<propertyfile file="${dist.properties}">
-				<entry key="version" value="${version}" />
-				<entry key="release" value="${release}" />
-				<entry default="0" key="build" operation="+" type="int" />
-				<entry key="build.date" type="date" value="now" />
-			</propertyfile>
-			<property file="${dist.properties}" />
 			<fileset dir="${build.dir}">
 				<include name="**/*.class" />
 			</fileset>
@@ -83,8 +85,9 @@
 	<!-- ================================= 
           target: clean              
          ================================= -->
-	<target name="clean" depends="init" description="--> Cleans up build resources">
+	<target name="clean" description="--> Cleans up build resources">
 		<delete dir="${build.dir}" />
+		<delete file="${dist.file}" />
 	</target>
 
 
