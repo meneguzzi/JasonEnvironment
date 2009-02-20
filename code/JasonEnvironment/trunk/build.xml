@@ -42,8 +42,7 @@
 	<!-- ================================= 
           target: dist              
          ================================= -->
-	<target name="dist" depends="jar" description="Creates a zip for distribution">
-		<antcall target="clean"/>
+	<target name="dist" depends="jar,clean" description="Creates a zip for distribution">
 		<zip destfile="${dist.file}">
 			<fileset dir="${basedir}">
 				<include name="**/*" />
