@@ -7,6 +7,19 @@ import java.util.HashMap;
 
 import org.kcl.jason.env.action.ExternalAction;
 
+/**
+ * A modular environment class for Jason, allowing easy development of new 
+ * environments for Jason, including the concept of an <em>external</em> action,
+ * similar in development concept to Jason's internal actions, but this one 
+ * used in the environment, thus avoiding concentrating the action 
+ * implementation on the {@link #executeAction(String, Structure)} method from
+ * {@linkplain Environment}.
+ * 
+ * @author Felipe Meneguzzi
+ *
+ * @param <E> The specific type of Modular environment being used, in case of 
+ *            subclassing
+ */
 public class ModularEnvironment<E extends Environment> implements EnvironmentActions {
 	protected HashMap<String, ExternalAction<E>> actions;
 	protected E env;
@@ -23,6 +36,7 @@ public class ModularEnvironment<E extends Environment> implements EnvironmentAct
 		this.actions.put(action.getFunctor(), action);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void addExternalAction(Class c) throws Exception {
 		ExternalAction<E> action;
 		action = instantiateAction(ExternalAction.class, c);
@@ -47,7 +61,6 @@ public class ModularEnvironment<E extends Environment> implements EnvironmentAct
 		return instantiateAction(classType, c);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public boolean executeAction(String agName, Structure act) {
 		if(!actions.containsKey(act.getFunctor())) {
 			return false;
