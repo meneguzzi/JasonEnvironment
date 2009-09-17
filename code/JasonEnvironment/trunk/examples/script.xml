@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- A script for adding perceptions heard(ni) at time 0 (immediately upon 
      system start), and heard(ekiekiekitapang) at time 2, among other 
-     perceptual data. -->
+     perceptual data.
+     The wipe attribute tells the environment to wipe all previous perceptual data. 
+-->
 <script>
 	<step time="0">
 		heard(ni).
@@ -9,5 +11,7 @@
 	<step time="2">
 		heard(ekiekiekitapang).
 		swallow(african).
+	</step>
+	<step time="3" wipe="true">
 	</step>
 </script>

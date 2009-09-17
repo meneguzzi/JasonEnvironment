@@ -9,10 +9,8 @@ import jason.asSyntax.Literal;
 import jason.asSyntax.parser.ParseException;
 import jason.asSyntax.parser.as2j;
 
-import java.io.BufferedReader;
 import java.io.CharArrayReader;
 import java.io.CharArrayWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -96,6 +94,7 @@ public class JasonScriptContentHandler extends DefaultHandler {
 				//We have to create an agent to parse a set of beliefs
 				//since the parser no longer has beliefs_list
 				Agent agent = new Agent();
+				agent.initAg();//This is needed for the latest version of Jason
 				try {
 					jasonParser.agent(agent);
 					currentEventList.addAll(agent.getInitialBels());
