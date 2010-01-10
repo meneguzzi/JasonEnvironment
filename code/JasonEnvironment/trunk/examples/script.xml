@@ -4,10 +4,12 @@
      perceptual data.
      The wipe attribute tells the environment to wipe all previous perceptual data. 
 -->
-<script>
+<script xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:noNamespaceSchemaLocation="http://www.meneguzzi.eu/schema/jason-script.xsd">
 	<step time="0">
 		heard(ni).
 	</step>
+	
 	<step time="2">
 		heard(ekiekiekitapang).
 		swallow(african).
