@@ -39,7 +39,7 @@ public class ScriptedEnvironmentActions extends
 		}
 	}*/
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public static Class[] getClasses(String pckgname)
 			throws ClassNotFoundException {
 		ArrayList<Class> classes = new ArrayList<Class>();

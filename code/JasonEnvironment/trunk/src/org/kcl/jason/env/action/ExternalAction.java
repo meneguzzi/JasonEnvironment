@@ -1,6 +1,7 @@
 package org.kcl.jason.env.action;
 
 import jason.asSyntax.Literal;
+import jason.asSyntax.Structure;
 import jason.asSyntax.Term;
 import jason.environment.Environment;
 
@@ -47,6 +48,24 @@ public interface ExternalAction<E extends Environment> {
 	 * @param agName The name of the agent executing the action.
 	 * @param terms	 The parameters to this action.
 	 * @return		 Whether or not the action has been successful
+	 * 
+	 * @deprecated Use {@link #execute(Environment, String, Structure)} instead, 
+	 *             old code can use the following line in the new method: 
+	 *             <code>return this.execute(env, agName, invocation.getTermsArray());</code> 
 	 */
 	public boolean execute(E env, String agName, Term ... terms);
+	
+	/**
+	 * Executes the external action called by the specified agent from the 
+	 * specified environment. In theory the this agent should add the consequences
+	 * specified by the <code>consequences</code> method to the list of perceptions
+	 * of the agent, however, if the world is not completely observable, this method
+	 * can result in a different outcome.
+	 * 
+	 * @param env		 The environment in which this action is executed.
+	 * @param agName	 The name of the agent executing the action.
+	 * @param invocation The invocation of this action.
+	 * @return
+	 */
+	public boolean execute(E env, String agName, Structure invocation);
 }
