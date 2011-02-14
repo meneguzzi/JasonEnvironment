@@ -80,6 +80,10 @@ public class StripsParser {
 		
 		return actions;
 	}
+
+	public List<StripsAction> parseStripsActions(Reader reader) throws ParseException {		this.ReInit(reader);
+		return actions();
+	}
 	
 	public List<StripsAction> parseStripsActions(InputStream operators) throws ParseException {
 		this.ReInit(operators);

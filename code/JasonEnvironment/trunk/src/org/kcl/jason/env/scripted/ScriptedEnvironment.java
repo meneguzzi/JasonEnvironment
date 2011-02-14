@@ -21,6 +21,9 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.kcl.jason.env.EnvironmentActions;
+import org.kcl.jason.env.action.StripsAction;
+import org.kcl.jason.env.action.parser.ParseException;
+import org.kcl.jason.env.action.parser.StripsParser;
 import org.kcl.jason.script.JasonScript;
 import org.kcl.jason.script.JasonScriptContentHandler;
 import org.kcl.jason.script.JasonScriptImpl;
@@ -28,7 +31,11 @@ import org.xml.sax.SAXException;
 
 
 /**
- * @author Felipe Rech Meneguzzi
+ * An environment class that allows <code>scripts</code> of events to be 
+ * supplied from external files, allowing one to repeat simulations exactly. 
+ * This class is useful for repeated experiments of testing of a single 
+ * agent's behaviour.
+ * @author Felipe Meneguzzi
  *
  */
 public class ScriptedEnvironment extends Environment implements Runnable {
@@ -46,6 +53,7 @@ public class ScriptedEnvironment extends Environment implements Runnable {
 	
 	protected long currentCycle;
 	
+	@SuppressWarnings("rawtypes")
 	protected EnvironmentActions actions;
 	
 	protected List<ScriptedEnvironmentListener> listeners;
@@ -64,7 +72,9 @@ public class ScriptedEnvironment extends Environment implements Runnable {
 		this.listeners = new ArrayList<ScriptedEnvironmentListener>();
 		//this.actions = new ScriptedEnvironmentActions(this);
 	}
+	
 	@Override
+	@SuppressWarnings({"unchecked" })
 	public void init(String[] args) {
 		super.init(args);
 		clearPercepts();
@@ -84,9 +94,30 @@ public class ScriptedEnvironment extends Environment implements Runnable {
 				}
 				//Then instantiate the proper external actions
 				if(args.length > 1) {
+					logger.info("Collecting actions from '"+args[1]+"'");
 					this.actions = new ScriptedEnvironmentActions(this, args[1]);
 				} else {
 					this.actions = new ScriptedEnvironmentActions(this, ScriptedEnvironment.class.getPackage().getName());
+				}
+				//Then instantiate any strips actions if they exist
+				if(args.length > 2) {
+					logger.info("Reading STRIPS actions from '"+args[2]+"'");
+					File stripsFile = new File(args[2]);
+					if(stripsFile.exists()) {
+						StripsParser stripsParser = new StripsParser();
+						try {
+							List<StripsAction> stripsActions = stripsParser.parseStripsActions(stripsFile);
+							logger.info("Read "+stripsActions.size()+" actions");
+							for(StripsAction a:stripsActions) {
+								logger.info("Adding "+a.getPredicateIndicator().toString());
+								this.actions.addExternalAction(a);
+							}
+						} catch (ParseException e) {
+							logger.warning("Error parsing '"+stripsFile+"'");
+						}
+					} else {
+						logger.warning("File '"+stripsFile+"' does not exist");
+					}
 				}
 			} else {
 				this.script = new JasonScriptImpl();
@@ -230,7 +261,7 @@ public class ScriptedEnvironment extends Environment implements Runnable {
 		return this.actions.executeAction(agName, act);
 	}
 	
-	public Literal findMatchingLiteral(Literal prototype, List<Literal> literals) {
+	public final Literal findMatchingLiteral(Literal prototype, List<Literal> literals) {
 		if(literals == null) {
 			return null;
 		}
@@ -243,7 +274,7 @@ public class ScriptedEnvironment extends Environment implements Runnable {
 		return null;
 	}
 	
-	public Literal findLiteralByFunctor(String key, List<Literal> literals) {
+	public final Literal findLiteralByFunctor(String key, List<Literal> literals) {
 		if(literals == null)
 			return null;
 		for (Literal literal : literals) {
@@ -256,7 +287,7 @@ public class ScriptedEnvironment extends Environment implements Runnable {
 	
 	
 	
-	public List<Literal> findLiteralsByFunctor(String key, List<Literal> literals) {
+	public final List<Literal> findLiteralsByFunctor(String key, List<Literal> literals) {
 		List <Literal> ret = new ArrayList<Literal>();
 		for (Literal literal : literals) {
 			if(literal.getFunctor().equals(key)) {

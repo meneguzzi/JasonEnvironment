@@ -20,7 +20,7 @@ import org.kcl.jason.env.action.ExternalAction;
  * @param <E> The specific type of Modular environment being used, in case of 
  *            subclassing
  */
-public class ModularEnvironment<E extends Environment> implements EnvironmentActions {
+public class ModularEnvironment<E extends Environment> implements EnvironmentActions<E> {
 	protected HashMap<String, ExternalAction<E>> actions;
 	protected E env;
 	
@@ -33,17 +33,22 @@ public class ModularEnvironment<E extends Environment> implements EnvironmentAct
 	public void addExternalAction(String classname) throws Exception {
 		ExternalAction<E> action;
 		action = instantiateAction(ExternalAction.class, classname);
-		this.actions.put(action.getFunctor(), action);
+		this.addExternalAction(action);
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void addExternalAction(Class c) throws Exception {
+	public void addExternalAction(Class<ExternalAction<E>> c) throws Exception {
 		ExternalAction<E> action;
 		action = instantiateAction(ExternalAction.class, c);
+		this.addExternalAction(action);
+	}
+	
+	
+	public final void addExternalAction(ExternalAction<E> action) {
 		this.actions.put(action.getFunctor(), action);
 	}
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected <K> K instantiateAction(Class<K> classType, Class c) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		K newObject = null;
 		
@@ -66,7 +71,7 @@ public class ModularEnvironment<E extends Environment> implements EnvironmentAct
 			return false;
 		} else {
 			ExternalAction<E> action = actions.get(act.getFunctor());
-			return action.execute(env, agName, act.getTermsArray());
+			return action.execute(env, agName, act);
 		}
 	}
 }
