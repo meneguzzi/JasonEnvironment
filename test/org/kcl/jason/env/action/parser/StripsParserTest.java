@@ -7,8 +7,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import jason.asSemantics.Unifier;
 import jason.asSyntax.ASSyntax;
 import jason.asSyntax.Literal;
@@ -16,7 +14,6 @@ import jason.asSyntax.Term;
 import jason.environment.Environment;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.List;
 
 import org.junit.Before;
@@ -63,7 +60,15 @@ public class StripsParserTest {
 		terms[1] = ASSyntax.parseTerm("pu1");
 		assertFalse(process.precondsValid(env, "testAgent", new Unifier()));
 		assertTrue(process.precondsValid(env, "testAgent", terms));
+		
+		Term invocation = ASSyntax.parseStructure("process(b1,pu1)");
+		Unifier un = new Unifier();
+		un.unifies(process, invocation);
+		assertTrue(process.precondsValid(env, "testAgent", un));
+		
 		assertTrue(process.execute(env, "testAgent", terms));
+		Literal processed = ASSyntax.parseStructure("processed(b1,pu1)");
+		assertTrue(env.containsPercept(processed));
 	}
 
 }
