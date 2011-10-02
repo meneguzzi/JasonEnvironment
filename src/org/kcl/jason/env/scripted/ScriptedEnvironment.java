@@ -113,7 +113,7 @@ public class ScriptedEnvironment extends Environment implements Runnable {
 								this.actions.addExternalAction(a);
 							}
 						} catch (ParseException e) {
-							logger.warning("Error parsing '"+stripsFile+"'");
+							logger.warning("Error parsing '"+stripsFile+"': "+e.getMessage());
 						}
 					} else {
 						logger.warning("File '"+stripsFile+"' does not exist");
@@ -137,7 +137,7 @@ public class ScriptedEnvironment extends Environment implements Runnable {
 	}
 	
 	@Override
-	public void stop() {
+	public synchronized void stop() {
 		this.running = false;
 	}
 	
@@ -163,25 +163,25 @@ public class ScriptedEnvironment extends Environment implements Runnable {
 	 * Return whether or not the environment thread is paused.
 	 * @return
 	 */
-	public boolean isPaused() {
+	public synchronized boolean isPaused() {
 		return paused;
 	}
 	
 	/**
 	 * Pauses the environment thread
 	 */
-	public void pause() {
+	public synchronized void pause() {
 		paused = true;
 	}
 	
 	/**
 	 * Resumes the environment thread after being paused
 	 */
-	public void resume() {
+	public synchronized void resume() {
 		paused = false;
 	}
 	
-	public void addPercepts(List<Literal> list) {
+	public synchronized void addPercepts(List<Literal> list) {
 		for (Literal literal : list) {
 			logger.info("Adding percept: "+literal);
 			addPercept(literal);
@@ -192,7 +192,7 @@ public class ScriptedEnvironment extends Environment implements Runnable {
 	 * we create a parallel list to maintain them accessible.
 	 * */
 	@Override
-	public void addPercept(Literal per) {
+	public synchronized void addPercept(Literal per) {
 		if (per != null) {
 			if(!this.accessiblePercepts.contains(per)) {
 				this.accessiblePercepts.add(per);
@@ -202,7 +202,7 @@ public class ScriptedEnvironment extends Environment implements Runnable {
 	}
 	
 	@Override
-	public boolean removePercept(Literal per) {
+	public synchronized boolean removePercept(Literal per) {
 		if(per != null) {
 			this.accessiblePercepts.remove(per);
 			return super.removePercept(per);
@@ -212,7 +212,7 @@ public class ScriptedEnvironment extends Environment implements Runnable {
 	}
 	
 	@Override
-	public void clearPercepts() {
+	public synchronized void clearPercepts() {
 		if(!accessiblePercepts.isEmpty()) {
 			accessiblePercepts.clear();
 		}
@@ -224,7 +224,7 @@ public class ScriptedEnvironment extends Environment implements Runnable {
 	 * @param queryLiteral
 	 * @return
 	 */
-	public List<Literal> findPercepts(Literal queryLiteral) {
+	public synchronized List<Literal> findPercepts(Literal queryLiteral) {
 		List<Literal> matchingPercepts = new ArrayList<Literal>();
 		
 		for(Literal percept : accessiblePercepts) {
@@ -256,12 +256,13 @@ public class ScriptedEnvironment extends Environment implements Runnable {
 	/* ************************************************************* */
 	
 	@Override
-	public boolean executeAction(String agName, Structure act) {
+	public synchronized boolean executeAction(String agName, Structure act) {
 		//return super.executeAction(agName, act);
+		logger.info("Agent "+agName+" executing "+act.toString());
 		return this.actions.executeAction(agName, act);
 	}
 	
-	public final Literal findMatchingLiteral(Literal prototype, List<Literal> literals) {
+	public synchronized final Literal findMatchingLiteral(Literal prototype, List<Literal> literals) {
 		if(literals == null) {
 			return null;
 		}
@@ -274,7 +275,7 @@ public class ScriptedEnvironment extends Environment implements Runnable {
 		return null;
 	}
 	
-	public final Literal findLiteralByFunctor(String key, List<Literal> literals) {
+	public synchronized final Literal findLiteralByFunctor(String key, List<Literal> literals) {
 		if(literals == null)
 			return null;
 		for (Literal literal : literals) {
@@ -287,7 +288,7 @@ public class ScriptedEnvironment extends Environment implements Runnable {
 	
 	
 	
-	public final List<Literal> findLiteralsByFunctor(String key, List<Literal> literals) {
+	public synchronized final List<Literal> findLiteralsByFunctor(String key, List<Literal> literals) {
 		List <Literal> ret = new ArrayList<Literal>();
 		for (Literal literal : literals) {
 			if(literal.getFunctor().equals(key)) {

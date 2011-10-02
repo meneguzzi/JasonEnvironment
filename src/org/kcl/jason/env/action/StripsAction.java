@@ -218,14 +218,20 @@ public class StripsAction extends Structure implements ExternalAction {
 		Unifier un = new Unifier();
 		if(un.unifies(invocation, this)) {
 			if(precondsValid(env, agName, un)) {
-				List<Literal> effects = consequences(env, agName, un);
-				for(Literal eff: effects) {
-					if(eff.negated()) {
-						env.removePercept(eff);
-					} else {
-						env.addPercept(eff);
+				synchronized(env) {
+					List<Literal> effects = consequences(env, agName, un);
+					for(Literal eff: effects) {
+						if(eff.negated()) {
+							eff = new LiteralImpl(true, eff);
+							if(!env.removePercept(eff)) {
+								return false;
+							}
+						} else {
+							env.addPercept(eff);
+						}
 					}
 				}
+				Thread.yield();
 				return true;
 			} else {
 				return false;
