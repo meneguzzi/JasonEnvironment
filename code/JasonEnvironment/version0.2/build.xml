@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ====================================================================== 
+     7 Aug 2007 16:37:33                                                        
+
+     JasonEnvironment    
+     Utility classes for a flexible Jason test Environment
+                   
+     meneguzz                                                                
+     ====================================================================== -->
+<project name="JasonEnvironment" default="all">
+	<description>
+            Utility classes for a flexible Jason test Environment
+    </description>
+
+	<property environment="env" />
+	<property name="project.name.long" value="Jason Environment Utilities" />
+	<property name="build.dir" value="${basedir}/bin" />
+	<property name="jason.jar" value="${basedir}/lib/jason.jar" />
+	<property name="jasonEnvJar" value="${basedir}/lib/jasonenv.jar" />
+	<property name="umlgraph.jar" value="${basedir}/lib/UmlGraph-5.3.jar" />
+	
+	<property name="package.name" value="org.kcl.jason" />
+
+	<property name="src.dir" value="${basedir}/src" />
+	<property name="test.src.dir" value="${basedir}/test" />
+
+	<property name="doc.dir" value="${basedir}/doc" />
+	<property name="uml.dir" value="${doc.dir}/uml" />
+
+	<property name="lib.dir" value="${basedir}/lib" />
+
+	<!-- Release properties -->
+	<property name="version" value="1.0" />
+	<property name="release" value="2" />
+	<property name="dist.properties" value="${basedir}/bin/dist.properties" />
+	<property name="dist.file" value="${basedir}/jasonenv-${version}.zip" />
+	<property name="dist.jar" value="${lib.dir}/jasonenv.jar" />
+
+
+	<path id="run.classpath">
+		<pathelement location="${jason.jar}" />
+		<pathelement location="${build.dir}" />
+	</path>
+
+	<path id="project.classpath">
+		<path refid="run.classpath" />
+		<pathelement location="${umlgraph.jar}"/>
+	</path>
+
+	<!-- ================================= 
+          target: all              
+         ================================= -->
+	<target name="all" depends="compile,jar" description="--> Utility classes for a flexible Jason test Environment">
+
+	</target>
+
+	<!-- ================================= 
+          target: dist              
+         ================================= -->
+	<target name="dist" depends="jar,clean" description="Creates a zip for distribution">
+		<zip destfile="${dist.file}">
+			<fileset dir="${basedir}">
+				<include name="**/*" />
+				<exclude name=".svn*" />
+			</fileset>
+
+		</zip>
+	</target>
+
+
+	<!-- ================================= 
+          target: jar              
+         ================================= -->
+	<target name="jar" depends="compile" description="--> Creates a jar file">
+		<propertyfile file="${dist.properties}">
+			<entry key="version" value="${version}" />
+			<entry key="release" value="${release}" />
+			<entry default="0" key="build" operation="+" type="int" />
+			<entry key="build.date" type="date" value="now" />
+		</propertyfile>
+		<property file="${dist.properties}" />
+		<jar destfile="${jasonEnvJar}">
+			<fileset dir="${build.dir}">
+				<include name="**/*.class" />
+			</fileset>
+		</jar>
+	</target>
+
+
+	<!-- =================================
+		  target: compile
+	     ================================= -->
+	<target name="compile" depends="init">
+		<javac srcdir="src" destdir="${build.dir}" debug="true" deprecation="true" optimize="true" nowarn="true" source="1.5" target="1.5">
+			<classpath refid="project.classpath" />
+		</javac>
+	</target>
+
+	<!-- ================================= 
+          target: clean              
+         ================================= -->
+	<target name="clean" description="--> Cleans up build resources">
+		<delete dir="${build.dir}" />
+		<delete dir="${doc.dir}" />
+		<delete dir="${uml.dir}" />
+		<delete file="${dist.file}" />
+	</target>
+
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: init                      
+         - - - - - - - - - - - - - - - - - -->
+	<target name="init">
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${doc.dir}" />
+		<mkdir dir="${uml.dir}" />
+	</target>
+
+	<!-- apidoc related tasks- -->
+	<!-- For more information on the UML generating package, check  http://www.umlgraph.org/ -->
+
+	<target name="apidoc" depends="compile,apidocsimple,apidocuml" />
+
+	<condition property="dot-ok" value="true">
+		<or>
+			<available file="dot" filepath="${env.PATH}" />
+			<available file="dot.exe" filepath="${env.PATH}" />
+			<available file="dot" filepath="/opt/local/bin" />
+		</or>
+	</condition>
+	<condition property="dot-nok" value="true">
+		<not>
+			<or>
+				<available file="dot" filepath="${env.PATH}" />
+				<available file="dot.exe" filepath="${env.PATH}" />
+				<available file="dot" filepath="/opt/local/bin" />
+			</or>
+		</not>
+	</condition>
+
+	<target name="apidocsimple" unless="dot-ok">
+		<!-- stylesheetfile="doc/faq/faq.css" -->
+		<echo>Graphviz dot program not found - Generating Simple JavaDocs</echo>
+		<javadoc destdir="${doc.dir}/api" packagenames="${package.name}.*" sourcepath="${src.dir}" excludepackagenames="${package.name}.util" use="true" version="true" author="true" windowtitle="${project.name.long}">
+			<classpath refid="project.classpath" />
+		</javadoc>
+	</target>
+
+	<target name="apidocuml" unless="dot-nok">
+		<javadoc destdir="${doc.dir}/api" packagenames="${package.name}.*" sourcepath="${src.dir}" excludepackagenames="${package.name}.util" use="true" version="true" author="true" windowtitle="${project.name.long}">
+			<classpath refid="project.classpath" />
+			<doclet name="org.umlgraph.doclet.UmlGraphDoc" path="${umlgraph.jar}">
+				<!-- <param name="-all"/> -->
+				<param name="-useimports" />
+				<param name="-inferrel" />
+				<!-- <param name="-operations"/> -->
+				<!-- <param name="-inferdep"/> -->
+				<param name="-hide" value="java.*" />
+				<param name="-enumconstants" />
+				<param name="-collpackages" value="java.util.*" />
+				<param name="-qualify" />
+				<!--param name="-collapsible"/-->
+				<param name="-postfixpackage" />
+				<param name="-nodefontsize" value="9" />
+				<param name="-nodefontpackagesize" value="7" />
+				<param name="-edgefontsize" value="7" />
+				<!--param name="-link" value="http://java.sun.com/j2se/1.5.0/docs/guide/javadoc/doclet/spec"/>
+		                                    <param name="-link" value="http://java.sun.com/j2se/1.5/docs/api"/-->
+			</doclet>
+		</javadoc>
+	</target>
+
+	<!-- generate only the UML diagrams in PDF format -->
+	<target name="uml" unless="dot-nok">
+		<property name="uml.dir" value="${basedir}/doc/uml" />
+		<property name="src.uml.dir" value="${src.dir}/doc/uml" />
+		<mkdir dir="${uml.dir}" />
+		<javadoc sourcepath="${src.dir}" packagenames="${package.name}.*" package="true" excludepackagenames="${package.name}.util">
+			<classpath refid="project.classpath" />
+			<doclet name="org.umlgraph.doclet.UmlGraph" path="${umlgraph.jar}">
+				<param name="-useimports" />
+				<param name="-inferrel" />
+				<param name="-operations" />
+
+				<param name="-hide" value="java.*" />
+				<param name="-enumconstants" />
+				<param name="-d" value="${uml.dir}" />
+
+				<param name="-postfixpackage" />
+				<param name="-nodefontsize" value="9" />
+				<param name="-nodefontpackagesize" value="7" />
+				<param name="-edgefontsize" value="7" />
+			</doclet>
+		</javadoc>
+		<move file="${uml.dir}/graph.dot" tofile="${uml.dir}/graph.dot" />
+		<apply executable="dot" dest="${uml.dir}" parallel="false">
+			<arg value="-Tpdf" />
+			<arg value="-o" />
+			<targetfile />
+			<srcfile />
+			<fileset dir="${uml.dir}" includes="*.dot" />
+			<mapper type="glob" from="*.dot" to="*.pdf" />
+		</apply>
+	</target>
+</project>

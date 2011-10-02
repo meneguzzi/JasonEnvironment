@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- A script for adding perceptions heard(ni) at time 0 (immediately upon 
+     system start), and heard(ekiekiekitapang) at time 2, among other 
+     perceptual data.
+     The wipe attribute tells the environment to wipe all previous perceptual data. 
+-->
+<script xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:noNamespaceSchemaLocation="http://www.meneguzzi.eu/schema/jason-script.xsd">
+	<step time="0">
+		heard(ni).
+	</step>
+	
+	<step time="2">
+		heard(ekiekiekitapang).
+		swallow(african).
+	</step>
+	<step time="3" wipe="true">
+	</step>
+</script>

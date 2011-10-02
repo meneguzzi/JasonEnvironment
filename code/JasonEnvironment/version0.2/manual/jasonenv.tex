@@ -1,0 +1,67 @@
+\documentclass[a4paper]{report}
+\usepackage{hyperref}
+
+
+\title{Jason Environments Library}
+\author{Felipe Meneguzzi}
+
+\begin{document} 
+\maketitle
+
+\chapter{Introduction}
+
+Jason is Java-based interpreter of an extended version of the AgentSpeak(L)
+agent language. 
+This software package allows the development multiagent systems
+through support of various communication libraries such as JADE and SACI. 
+Additions to the basic interpreter are created by extending the Java classes
+that comprise the interpreter. 
+Additional internal actions cab be create by extending the
+\texttt{InternalAction} class, while simulations are created by extending the
+\texttt{Environment} class.
+
+One of the main tasks of a programmer when creating an agent simulation is the
+creation of the environment. 
+In order to ease the burden of the programmer when the intention is to simply
+create a simulation using first-order logic (as opposed to creating complex,
+UI-interacting environments), we have created a library of classes to implement
+a \emph{modular} environment.
+
+Main classes:
+\begin{itemize}
+  \item \texttt{ModularEnvironment} ---  A modular environment class for Jason,
+  allowing easy development of new environments for Jason, including the concept
+  of an \emph{external} action, similar in development concept to Jason's
+  internal actions, but this one used in the environment, thus avoiding
+  concentrating the action implementation on the \texttt{executeAction(String,
+  Structure)} method from \texttt{Environment}.
+  \item \texttt{ScriptedEnvironment} --- An environment class that allows
+  \emph{scripts} of events to be supplied from external files, allowing one to
+  repeat simulations exactly. This class is useful for repeated experiments of
+  testing of a single agent's behaviour.
+  \item \texttt{ExternalAction} --- An interface for an action executable from
+  within a certain modular environment.
+  \item \texttt{StripsAction} --- An external action that represents a STRIPS
+  operator (and can be parsed from a STRIPS specification).
+\end{itemize}
+
+\chapter{Configuration}
+
+Multiagent systems in Jason are created through a project configuration file in
+the MAS2J format \cite{Bordini2007}. 
+
+\begin{verbatim}
+MAS <ID> {
+    [infrastructure]
+    [environment]
+    [exec_control]
+    agents
+} 
+\end{verbatim}
+
+\chapter{Usage}
+
+\bibliography{jasonenv}
+\bibliographystyle{plain}
+
+\end{document}
